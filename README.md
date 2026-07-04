@@ -9,7 +9,7 @@
 | --- | --- | --- |
 | 강보민 | game_1 | `games/game_1.py` |
 | 이지연 | game_2 | `games/game_2.py` |
-| 이주현 | game_3 | `games/game_3.py` |
+| 이주헌 | game_3 | `games/game_3.py` |
 | 장희원 | game_4 | `games/game_4.py` |
 | 정현민 | game_5 | `games/game_5.py` |
 
@@ -48,7 +48,7 @@ Piro23_PythonGame_O/
     ├── __init__.py      # 빈 파일 (games를 패키지로 인식시킴)
     ├── game_1.py        # 강보민
     ├── game_2.py        # 이지연
-    ├── game_3.py        # 이주현
+    ├── game_3.py        # 이주헌
     ├── game_4.py        # 장희원
     └── game_5.py        # 정현민
 ```
@@ -60,7 +60,7 @@ Piro23_PythonGame_O/
 
 - `main` : 최종 완성본 (직접 커밋 금지)
 - `develop` : 개발 브랜치 (작업내용은 여기에 PR 날리기)
-- `이름` : 각자 작업 브랜치 (예: `보민`, `지연`, `주현`, `희원`, `현민`)
+- `이름` : 각자 작업 브랜치 (예: `보민`, `지연`, `주헌`, `희원`, `현민`)
 - 작업 시작 전 항상 `git pull origin develop`
 - 작업 완료 → PR 올리기 → 리뷰 후 머지
 
