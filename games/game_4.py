@@ -114,3 +114,11 @@ def play (current_player, others):
             if '0' in str(loser_num) or '9' in str(loser_num):
                 drink_count[loser] += 1
                 print(f"패배자 {loser}님의 숫자 {loser_num}에 0 또는 9가 포함되어 1잔 더 적립됩니다! (1잔 추가)")
+
+    #결과 리턴
+    result_dict = {}
+    for player, count in drink_count.items():
+        if count > 0:
+            result_dict[player] = count
+                
+    return result_dict
