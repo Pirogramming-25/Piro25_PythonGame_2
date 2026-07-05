@@ -16,29 +16,39 @@ def play(current_player, others):
     targets = random.sample(candidates, 2)
     print(f'{current_player}(이)가 외친다 ! 아싸 너너 ! {targets[0]}, {targets[1]}')
 
-    pending = []
-    count = {}
+    pending = targets
 
-    for target in targets:
-        if target == current_player:
-            print('당신이 지목당했습니다 ! 다음 사람을 지목하세요 !')
-            new_target = input('이름을 입력해주세요')
+    for round in range(20):
+        count = {}
+        for target in pending:
+            if target == current_player:
+                print('당신이 지목당했습니다 ! 다음 사람을 지목하세요 !')
+                new_target = input('이름을 입력해주세요')
 
-            if new_target in pool and new_target != current_player:
-                print(f'{target}이 외친다 ! 아싸 너 ! {new_target}')
-                count[new_target] = count.get(new_target, 0) + 1
+                if new_target in pool and new_target != current_player:
+                    print(f'{target}이 외친다 ! 아싸 너 ! {new_target}')
+                    count[new_target] = count.get(new_target, 0) + 1
+                else:
+                    print(f'{target}(이)는 반응하지 못했습니다 . . . 벌칙 !')
+                    return {current_player : 1}
+
             else:
-                pass # 오타, 없는 사람, 본인 지목은 벌칙
+                options = []
+                for p in pool:
+                    if p != target:
+                        options.append(p)
+                new_target = random.choice(options)
+                
+                # 25%의 확률로 다른 사람을 선택하지 못함
+                if random.random() < 0.25:
+                    return {target: 1}
+                else:
+                    print(f'{target}(이)가 외친다 ! 아싸 너 ! {new_target}')
+                    count[new_target] = count.get(new_target, 0) + 1
+                
+        
 
-        else:
-            options = []
-            for p in pool:
-                if p != target:
-                    options.append(p)
-            new_target = random.choice(options)
-
-            print(f'{target}(이)가 외친다 ! 아싸 너 ! {new_target}')
-            count[new_target] = count.get(new_target, 0) + 1
+    
 
             
     
