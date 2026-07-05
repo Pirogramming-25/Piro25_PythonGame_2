@@ -1,5 +1,14 @@
 import random
 
+def double_pick(picker, pool):
+    candidates = []
+    for p in pool:
+        if p != picker:
+            candidates.append(p)
+    picked = random.sample(candidates, 2)
+    print(f'{picker}(이)가 외친다 ! 아싸 너너 ! {picked[0]}, {picked[1]}')
+    return picked
+
 def play(current_player, others):
     pool = [current_player] + others
     print(pool)
@@ -7,16 +16,8 @@ def play(current_player, others):
     print('=== 홍삼게임 시작 ! ===')
     print('누군가 외친다: "아싸 홍삼 !"')
     print('다같이 외친다: "에브리바디 홍삼 !"')
-
-    starter = current_player
-    candidates = []
-    for p in pool:
-        if p != current_player:
-            candidates.append(p)
-    targets = random.sample(candidates, 2)
-    print(f'{current_player}(이)가 외친다 ! 아싸 너너 ! {targets[0]}, {targets[1]}')
-
-    pending = targets # pending은 다음 라운드에 반응할 사람
+    
+    pending = double_pick(current_player, pool) # pending은 다음 라운드에 반응할 사람
 
     for round in range(20):
         count = {} # 지목 개수를 저장할 딕셔너리
@@ -41,6 +42,7 @@ def play(current_player, others):
                 
                 # 25%의 확률로 다른 사람을 선택하지 못함
                 if random.random() < 0.25:
+                    print(f'{target}(이)는 반응하지 못했습니다 . . . 벌칙 !')
                     return {target: 1}
                 else:
                     print(f'{target}(이)가 외친다 ! 아싸 너 ! {new_target}')
@@ -61,7 +63,7 @@ def play(current_player, others):
                 
                 if answer == '아싸 홍삼 !':
                     print('에브리바디 홍삼 !')
-                    return {}
+                    pending =  double_pick(double_target, pool)
                 else:
                     print(f'{current_player}(이)는 반응하지 못했습니다 . . . 벌칙 !')
                     return {current_player: 1}
@@ -73,7 +75,10 @@ def play(current_player, others):
                 else:
                     print(f'{double_target}(이)가 외친다 ! 아싸 홍삼 !')
                     print('에브리바디 홍삼 !')
-                    return {}
+                    pending = double_pick(double_target, pool)
+    
+    print("체인이 너무 길어져서 무승부로 처리합니다")
+    return {}
                 
                 
 
