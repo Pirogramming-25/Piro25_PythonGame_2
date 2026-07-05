@@ -1,8 +1,24 @@
 import random
 import pyfiglet
 import time
+import threading
 
 LINE = '-' * 80
+
+# 3초 안에 입력이 없을시에 벌칙
+def timed_input(prompt, timeout = 3):
+    print(prompt, end='', flush=True)
+    answer = [None]
+
+    def get_input():
+        answer[0] = input()
+
+    thread = threading.Thread(target=get_input)
+    thread.daemon = True
+    thread.start()
+    thread.join(timeout=timeout)
+
+    return answer[0]
 
 def slow_print(text, delay = 0.7):
     print(text)
@@ -44,8 +60,8 @@ def play(current_player, others):
         count = {} # 지목 개수를 저장할 딕셔너리
         for target in pending:
             if target == current_player:
-                slow_print('>>> 당신이 지목당했습니다 ! 다음 사람을 지목하세요 ! <<<')
-                new_target = input('입력 : ')
+                slow_print('>>> 당신이 지목당했습니다 ! 3초 안에 다음 사람을 지목하세요 ! <<<')
+                new_target = timed_input('-> ')
                 print()
 
                 if new_target in pool and new_target != current_player:
@@ -64,7 +80,7 @@ def play(current_player, others):
                 new_target = random.choice(options)
                 
                 # 25%의 확률로 다른 사람을 선택하지 못함
-                if random.random() < 0.25:
+                if random.random() < 0.1:
                     print()
                     slow_print(f'{target}(이)는 반응하지 못했습니다 . . . 벌칙 !')
                     return {target: 1}
@@ -86,7 +102,7 @@ def play(current_player, others):
             
             if double_target == current_player:
                 slow_print('>>> 당신이 지목당했습니다 ! 3초 안에 >>> 아싸 홍삼 ! <<< 을 외치세요 ! <<<')
-                answer = input('입력 : ')
+                answer = timed_input('-> ')
                 
                 if answer == '아싸 홍삼 !':
                     slow_print('다같이 외친다! >>> 에브리바디 홍삼 ! <<<')
