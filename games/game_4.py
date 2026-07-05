@@ -5,6 +5,8 @@
 # 5. 2,3번 규칙에 의해 걸린 사람의 수에 0,9가 들어가면 해당 플레이어만 1잔 추가
 # 6. 모든 플레이어의 수가 겹치지 않는다면 모두가 마시지 않고 종료
 
+import random
+
 def play (current_player, others):
 
     all_players = [current_player] + others
@@ -14,18 +16,15 @@ def play (current_player, others):
     drink_count = {}
     original_losers = []
 
-    # 플레이어별로 1~99 사이의 숫자를 입력받음
+    # 플레이어별로 1~99 사이의 숫자를 랜덤으로 생성
+    print("=" * 50)
+    print("숫자를 무작위로 생성합니다")
+    print("=" * 50)
     for player in all_players:
-        while True:
-            try:
-                num = int(input(f"[{player}] 1부터 99 사이의 숫자를 입력하세요: "))
-                if 1 <= num <= 99:
-                    players_num[player] = num
-                    break
-                else:
-                    print("1에서 99 사이의 숫자만 입력 가능합니다.")
-            except ValueError:
-                print("올바른 숫자를 입력해주세요.")
+        random_num = random.randint(1, 99)
+        players_num[player] = random_num
+        
+        print(f"{player}의 숫자: {random_num}")
 
     # 10의 자리와 1의 자리를 분리하여 딕셔너리에 저장       
     for player in all_players:
@@ -114,6 +113,20 @@ def play (current_player, others):
             if '0' in str(loser_num) or '9' in str(loser_num):
                 drink_count[loser] += 1
                 print(f"패배자 {loser}님의 숫자 {loser_num}에 0 또는 9가 포함되어 1잔 더 적립됩니다! (1잔 추가)")
+    
+    print("\n==================================================")
+    print("최종 마셔야 하는 잔수 결과")
+    print("==================================================")
+    
+    has_drinkers = False
+    for player, count in drink_count.items():
+        if count > 0:
+            print(f"{player} 님: 총 {count}잔")
+            has_drinkers = True
+            
+    if not has_drinkers:
+        print("벌칙에 걸린 플레이어가 없습니다.")
+    print("==================================================")
 
     #결과 리턴
     result_dict = {}
@@ -122,3 +135,4 @@ def play (current_player, others):
             result_dict[player] = count
                 
     return result_dict
+
