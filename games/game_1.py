@@ -5,25 +5,30 @@ import threading
 
 LINE = '-' * 80
 
-# 3초 안에 입력이 없을시에 벌칙
+
+# 3초 안에 입력이 없을 때 벌칙
 def timed_input(prompt, timeout = 3):
-    print(prompt, end='', flush=True)
+    print(prompt, end = '', flush = True)
     answer = [None]
 
     def get_input():
         answer[0] = input()
 
-    thread = threading.Thread(target=get_input)
+    thread = threading.Thread(target = get_input)
     thread.daemon = True
     thread.start()
-    thread.join(timeout=timeout)
+    thread.join(timeout = timeout)
 
     return answer[0]
 
+
+# 0.7초마다 출력
 def slow_print(text, delay = 0.7):
     print(text)
     time.sleep(delay)
 
+
+# 두 명에게 지목 당했을 때
 def double_pick(picker, pool):
     candidates = []
     for p in pool:
@@ -36,8 +41,48 @@ def double_pick(picker, pool):
     return picked
 
 
+# 인원이 2명일 경우
+def play_two(current_player, other):
+    slow_print(f'\n{current_player}(이)가 외친다 ! >>> 아싸 홍삼 ! <<<')
+    slow_print(f'{other}(이)가 외친다 ! >>> 에브리바디 홍삼 ! <<<')
+
+    target = other
+
+    for round in range(20):
+        if target == current_player:
+            slow_print('>>> 당신이 지목당했습니다 ! 3초 안에 상대를 지목하세요 ! <<<')
+            new_target = timed_input('-> ')
+            print()
+
+            if new_target == other:
+                slow_print(f'{current_player}(이)가 외친다 ! >>> 아싸 너 ! <<< -> {other}')
+                target = other
+            else:
+                slow_print(f'{current_player}(이)는 반응하지 못했습니다 . . . 벌칙 !')
+                return {current_player: 1}
+        else:
+            if random.random() < 0.25:
+                slow_print(f'{target}(이)는 반응하지 못했습니다 . . . 벌칙 !')
+                return {target: 1}
+            else:
+                slow_print(f'{target}(이)가 외친다 ! >>> 아싸 너 ! <<< -> {current_player}')
+                target = current_player
+
+    print(LINE)
+    print('체인이 너무 길어져서 무승부로 처리합니다')
+    print(LINE)
+    return {}
+    
+
 def play(current_player, others):
     pool = [current_player] + others
+    
+    if len(pool) < 2:
+        print("홍삼게임은 상대가 최소 1명 이상 있어야 진행할 수 있습니다")
+        return {}
+    
+    if len(pool) == 2:
+        return play_two(current_player, others[0])
     
     print()
     result = pyfiglet.figlet_format('HONGSAM GAME')
@@ -124,8 +169,7 @@ def play(current_player, others):
     print('체인이 너무 길어져서 무승부로 처리합니다')
     print(LINE)
     return {}
-                
-                
+                               
 if __name__== "__main__":
     play('보민', ['현민', '지연', '주헌', '희원'])
     
