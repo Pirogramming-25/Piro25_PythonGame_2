@@ -252,7 +252,7 @@ def play(current_player, others, user_name):
 
     success_count = 0
     round_number = 1
-    time_limit = 7
+    time_limit = 5
 
     total_word_count = sum(
         len(words)
