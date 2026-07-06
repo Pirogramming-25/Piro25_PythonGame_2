@@ -161,7 +161,7 @@ def play(current_player, others, user_name):
 ## 📁 폴더 구조
 
 ```
-Piro23_PythonGame_O/
+Piro25_PythonGame_2/
 ├── main.py              # 메인 실행 (이름/주량/초대/게임 리스트/게임오버 처리)
 ├── players.py           # 플레이어 상태 관리 (이름, 주량, 마신 잔 수)
 └── games/
