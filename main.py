@@ -131,8 +131,21 @@ def play_one_round(current_player, players):
     # 선택된 게임
     game_name, game_module = game_list[choice]
     print(f"\n{current_player.name} 님이 게임을 선택하셨습니다! \n")
-    others = [p for p in players if p != current_player]
-    game_result = game_module.play(current_player, others) 
+    current_player_name = current_player.name
+
+    other_names = [
+        player.name
+        for player in players
+        if player != current_player
+    ]
+
+    user_name = players[0].name
+
+    game_result = game_module.play(
+    current_player_name,
+    other_names,
+    user_name,
+    ) 
     
     # 결과 반영 및 정산
     if not game_result:
