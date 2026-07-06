@@ -12,6 +12,7 @@ game_2.py - 딸기당근수박참외메론 게임
 
 import time
 import os
+import random
 
 # 정해진 순서
 FRUITS = ["딸기", "당근", "수박", "참외", "메론"]
@@ -19,6 +20,8 @@ FRUITS = ["딸기", "당근", "수박", "참외", "메론"]
 # 제한시간 계산용 (난이도 조절)
 BASE_TIME = 1.5        # 기본 여유 시간
 TIME_PER_FRUIT = 1.2   # 과일 한 개당 추가되는 시간
+
+COM_FAIL_RATE = 0.3
 
 
 def enable_ansi():
@@ -28,7 +31,6 @@ def enable_ansi():
 
 
 def mask_last_line(fruit_count):
-    # \033[F : 커서를 한 줄 위로 / \033[2K : 그 줄 전체 지우기
     print("\033[F\033[2K ▶ " + "●" * fruit_count + "  (입력 완료)")
 
 
@@ -36,12 +38,7 @@ def build_sequence(length):
     return [FRUITS[i % len(FRUITS)] for i in range(length)]
 
 
-def play(current_player, others):
-    """
-    :param current_player: 플레이어 이름 (문자열)
-    :param others: 다른 참가자 리스트 (혼자 하는 게임이라 사용 안 함)
-    :return: {이름: 잔수} 딕셔너리
-    """
+def play_human(current_player):
     enable_ansi()
     print("=" * 48)
     print("        🍓 딸기당근수박참외메론 게임 🍉")
@@ -88,7 +85,40 @@ def play(current_player, others):
         round_num += 1
 
 
+def play_computer(current_player):
+    """컴퓨터가 플레이하는 버전 (입력 없이 확률로 자동 진행)"""
+    print("=" * 48)
+    print(f"   🤖 {current_player}(이)가 딸기당근수박참외메론 게임 도전!")
+    print("=" * 48)
+ 
+    round_num = 1
+    while True:
+        sequence = build_sequence(round_num)
+        answer_view = " ".join(sequence)
+        print(f" [{round_num}라운드] {current_player}: \"{answer_view}\"")
+        time.sleep(0.4)
+ 
+        # 확률로 이번 라운드에서 걸리는지 판정
+        if random.random() < COM_FAIL_RATE:
+            print(f" ❌ {current_player}, 삐끗! 걸렸습니다!")
+            print(f"🍺 {current_player}, 벌주 1잔 원샷!")
+            return {current_player: 1}
+ 
+        round_num += 1
+ 
+ 
+def play(current_player, others, user_name):
+    if current_player == user_name:
+        # 진짜 사람 → 실제로 입력 받아 플레이
+        return play_human(current_player)
+    else:
+        # 컴퓨터 → 입력 없이 확률로 자동 처리
+        return play_computer(current_player)
+    
+
 # 단독 실행 테스트용
 if __name__ == "__main__":
-    result = play("플레이어", ["상대1", "상대2"])
-    print("리턴값:", result)
+    # 사람으로 테스트: current_player == user_name
+    print(play("지연", ["보민", "현민"], "지연"))
+    # 컴퓨터로 테스트하려면 아래 주석 해제:
+    # print(play("보민", ["지연", "현민"], "지연"))
