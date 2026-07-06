@@ -175,15 +175,28 @@ def play(current_player, others, user_name):
   print('====================================================================')
   print(pyfiglet.figlet_format('SUBWAY GAME', font='doom'), end='')
   print('====================================================================')
+  time.sleep(3)
+  print('서울 지하철 1~9호선의 역들을 중복 없이 대야합니다!')
+  time.sleep(3)
+  print('입력은 "역삼역" or "역삼" 처럼 입력해주세요!')
+  time.sleep(3)
+  print('환승역에서 역 이름 뒤에 "환승"을 붙이면 환승할 수 있습니다!')
+  time.sleep(3)
+  print('시간제한은 없습니다. 중복된 역을 대지 않도록 조심하세요!!')
+  print('====================================================================')
+
+  time.sleep(3)
+  print('🚇지하철~ 지하철! 지하철~ 지하철!', end='')
   time.sleep(2)
-  print('🚇지하철~ 지하철! 지하철~ 지하철! 몇호선~ 몇호선! 몇호선~ 몇호선!🚇 : ', end='')
+  print('몇호선~ 몇호선! 몇호선~ 몇호선!🚇 : ', end='')
   if current_player == user_name:
     current_line = line_input()
+    time.sleep(1)
   else:
-    time.sleep(2)
+    time.sleep(3)
+    current_line = random.choice(LINE_NAMES)
     print(f'🚇 {current_player}(이)가 외친다... {current_line}!')
     time.sleep(1)
-    current_line = random.choice(LINE_NAMES)
   print(f"{current_line}~ {current_line}! {current_line}~ {current_line}!")
   time.sleep(1)
   
@@ -207,9 +220,11 @@ def play(current_player, others, user_name):
       # 플레이어 탈락처리 : 현재 호선 아닐때, 중복일때
       if station not in LINES[current_line]:
         print(f"❌ '{station}'은(는) {current_line} 역이 아닙니다! {turn_player} 탈락!")
+        time.sleep(3)
         return {turn_player: 1}
       if station in used:
         print(f"❌ '{station}'은(는) 이미 나온 역! {turn_player} 탈락!")
+        time.sleep(3)
         return {turn_player: 1}
     
       used.add(station)
@@ -218,6 +233,7 @@ def play(current_player, others, user_name):
       if want_transfer:
         if not is_transfer_station(station):
           print(f"❌ '{station}'은(는) 환승역이 아닙니다! {turn_player} 탈락!")
+          time.sleep(3)
           return {turn_player: 1}
         target_lines = lines_of(station) - {current_line}
         current_line = choose_transfer_line(station, target_lines)
@@ -233,7 +249,7 @@ def play(current_player, others, user_name):
       # 실패확률 or 남은 역 없을 때 : NPC 탈락
       if random.random() < fail_rate or not candidates:
         print(f"❌ {turn_player}이(가) 역을 대지 못하고 탈락!")
-        time.sleep(1)
+        time.sleep(3)
         return {turn_player: 1}
       
       # 마지막 환승으로부터 10번 지나면 자동 환승
@@ -254,7 +270,7 @@ def play(current_player, others, user_name):
       # 일반 답변
       answer = random.choice(list(candidates))
       used.add(answer)
-      time.sleep(random.uniform(0.7, 1.5))
+      time.sleep(random.uniform(2, 2.5))
       print(f"{turn_player} : {answer}")
     
     # 한 턴 종료
