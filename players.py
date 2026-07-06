@@ -3,6 +3,8 @@ class Player:
         self.name = name
         self.capacity = capacity # 치사량
         self.drunk = 0 # 지금까지 마신 잔
+    def __str__(self):
+        return self.name
         
     def add_drink(self, count): # 잔 수 추가하기
         self.drunk += count
