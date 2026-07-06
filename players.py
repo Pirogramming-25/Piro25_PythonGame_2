@@ -13,7 +13,7 @@ class Player:
         return self.drunk >= self.capacity
     
     def remaining(self): # 치사량까지 얼마나 남았는지
-        return self.capacity - self.drunk
+        return max(0, self.capacity - self.drunk)
     
     
 def find_player(players, name):

@@ -17,9 +17,11 @@ name_list = ['보민', '현민', '주헌', '지연', '희원']
 # 사용자 이름 받기
 def get_player_name():
     while True:
-        name = input("오늘 거하게 취해볼 당신의 이름은 ? : ")
-        if name.strip() != "": # 아무것도 입력하지 않았을 때 다시 물어보기
+        name = input("오늘 거하게 취해볼 당신의 이름은 ? : ").strip()
+
+        if name:
             return name
+
         print("이름을 입력해주세요 : ")
         
         
@@ -187,15 +189,22 @@ def main():
 
         play_one_round(current_player, players)
         
-        # 3. 치사량 도달 체크 
-        game_over = False
+        # 3. 치사량 도달 체크
+        dead_players = []
+
         for p in players:
             if p.is_dead():
-                print(f"\n{p.name}이(가) 전사했습니다... 꿈나라에서는 편히 쉬시길..ZZZ")
-                game_over = True
-                
-        if game_over:
-            print("\n")
+                dead_players.append(p)
+
+        if dead_players:
+            print_status(players)
+
+            for p in dead_players:
+                print(
+                    f"\n{p.name}이(가) 전사했습니다... "
+                    "꿈나라에서는 편히 쉬시길..ZZZ"
+                )
+
             print("~" * 65)
             print("\n다음에 술마시면 또 불러주세요~ 안녕!\n")
             print("~" * 65)
