@@ -71,10 +71,25 @@ def invite():
         friends.append(friend)
     
     return friends
-            
-            
+
+
+# 현재 상황 출력하기
+def print_status(players):
+    pass
+    
+    
+# 게임 리스트 출력하기
+def print_game_list():
+    pass
+    
+    
+# 게임 번호 선택 받고, 리턴 받은 결과 players에 반영
+def play_one_round(current_player, players):
+    pass
+    
+
+# main 함수            
 def main():
-    """전체 게임 진행"""
     pass
 
 
