@@ -104,10 +104,12 @@ def line_input():
     line = input().strip().replace("호선", "")
     if not line.isdigit():
       print('1~9 사이의 숫자를 입력해주세요!')
+      time.sleep(1)
       continue
     line = int(line)
     if not 1 <= line <= 9:
       print('1~9 사이로 입력해주세요!')
+      time.sleep(1)
       continue
     return f"{line}호선"
 
@@ -152,12 +154,13 @@ def next_turn(index, n, lap_count):
   return index, lap_count
   
 
-def play(current_player, others):
+def play(current_player, others, user_name):
   """메인 게임 함수
 
     Args:
-        current_player(str): 실제 플레이어 이름 문자열
-        others(list) : NPC 리스트
+        current_player(str): 미니게임 정한 플레이어 이름 문자열
+        others(list) : 그 외 플레이어 이름 문자열 리스트
+        user_name(str) : 실제 유저 이름 문자열
     Returns:
         json: 누가 술을 마시는지를 {"플레이어 이름" : 1} 처럼 리턴하는 json
         
@@ -172,14 +175,22 @@ def play(current_player, others):
   print('====================================================================')
   print(pyfiglet.figlet_format('SUBWAY GAME', font='doom'), end='')
   print('====================================================================')
+  time.sleep(2)
   print('🚇지하철~ 지하철! 지하철~ 지하철! 몇호선~ 몇호선! 몇호선~ 몇호선!🚇 : ', end='')
-  current_line = line_input()
+  if current_player == user_name:
+    current_line = line_input()
+  else:
+    time.sleep(2)
+    print(f'🚇 {current_player}(이)가 외친다... {current_line}!')
+    time.sleep(1)
+    current_line = random.choice(LINE_NAMES)
   print(f"{current_line}~ {current_line}! {current_line}~ {current_line}!")
+  time.sleep(1)
   
   while True:
     turn_player = players[index]
     # 플레이어 차례
-    if turn_player == current_player:
+    if turn_player == user_name:
       tokens = input(f"[{current_line}] {turn_player} 차례! 역 이름 "
                     f"(환승하려면 '역이름 환승'): ").strip().split()
       #입력 예외처리
@@ -222,6 +233,7 @@ def play(current_player, others):
       # 실패확률 or 남은 역 없을 때 : NPC 탈락
       if random.random() < fail_rate or not candidates:
         print(f"❌ {turn_player}이(가) 역을 대지 못하고 탈락!")
+        time.sleep(1)
         return {turn_player: 1}
       
       # 마지막 환승으로부터 10번 지나면 자동 환승
@@ -234,6 +246,7 @@ def play(current_player, others):
           target_lines = lines_of(station) - {current_line}
           current_line = random.choice(list(target_lines))
           print(f"🔄 {current_line}으로 환승~ 🔄")
+          time.sleep(1)
           transfer_counter = 0
           index, lap_count = next_turn(index, n, lap_count)
           continue
@@ -247,4 +260,4 @@ def play(current_player, others):
     # 한 턴 종료
     transfer_counter+=1
     index, lap_count = next_turn(index, n, lap_count)
-play('정현민', ['a', 'b', 'c', 'd'])
+#play('정현민', ['a', 'b', 'c', 'd'])
