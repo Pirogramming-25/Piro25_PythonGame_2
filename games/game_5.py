@@ -4,7 +4,7 @@ import random, time
 LINES = {
   "1호선": {"온수", "오류동", "개봉", "구일", "구로", "가산디지털단지", "독산",
             "금천구청", "신도림", "영등포", "신길", "대방", "노량진", "용산",
-            "남영", "서울역", "시청", "종각", "종로3가", "종로5가", "동대문",
+            "남영", "서울", "시청", "종각", "종로3가", "종로5가", "동대문",
             "동묘앞", "신설동", "제기동", "청량리", "회기", "외대앞", "신이문",
             "석계", "광운대", "월계", "녹천", "창동", "방학", "도봉", "도봉산"
             },
@@ -24,7 +24,7 @@ LINES = {
             "대청", "일원", "수서", "가락시장", "경찰병원", "오금"
           },
   "4호선": {"남태령", "사당", "이수", "동작", "이촌", "신용산", "삼각지",
-            "숙대입구", "서울역", "회현", "명동", "충무로", "동대문역사문화공원", "동대문",
+            "숙대입구", "서울", "회현", "명동", "충무로", "동대문역사문화공원", "동대문",
             "혜화", "한성대입구", "성신여대입구", "길음", "미아사거리", "미아", "수유",
             "쌍문", "창동", "노원", "상계", "불암산"
           },
@@ -61,35 +61,70 @@ LINES = {
 LINE_NAMES = [f"{i}호선" for i in range (1,10)]
 
 
-BASE_FAIL_RATE = 0    #npc가 틀릴 확률 = 기본 10%
-FAILSTEP = 0.01       #한바퀴 돌때마다 5%씩 상승
+BASE_FAIL_RATE = 0    #npc가 틀릴 확률 = 기본 0%
+FAILSTEP = 0.01       #한바퀴 돌때마다 1%씩 상승
 TRANSFER_LIMIT = 10   #10번동안 환승 안하면 npc가 강제 환승
 
-
-
-# 입력된 역이 지나는 호선들의 집합 - 2개 이상이면 환승역
 def lines_of(station):
+  """입력된 역이 몇호선을 지나는지 알려주는 함수
+
+    Args:
+        station(str): 지하철역 문자열
+
+    Returns:
+        line: 해당 역이 지나는 호선들이 담긴 리스트
+
+    """
   return {line for line in LINE_NAMES if station in LINES[line]}
 
-# 환승역 판단
 def is_transfer_station(station):
+  """입력된 역이 환승역인지 판단하는 함수
+
+    Args:
+        station(str): 지하철역 문자열
+
+    Returns:
+        boolean value : 환승역이면 True, 아니면 False
+
+    """
   return station is not None and len(lines_of(station)) >= 2
 
-# 호선 입력
+
 def line_input():
+  """사용자로부터 호선 입력받는 함수
+
+    Args:
+        None
+
+    Returns:
+        str : "#호선" 형식의 문자열
+
+    """
   while True:
     line = input().strip().replace("호선", "")
     if not line.isdigit():
       print('1~9 사이의 숫자를 입력해주세요!')
+      time.sleep(1)
       continue
     line = int(line)
     if not 1 <= line <= 9:
       print('1~9 사이로 입력해주세요!')
+      time.sleep(1)
       continue
     return f"{line}호선"
 
-# 플레이어가 환승역 선택
-def choose_transfer_line(who, station, target_lines):
+
+def choose_transfer_line(station, target_lines):
+  """플레이어가 환승역에서 환승할 호선을 선택하는 함수
+
+    Args:
+        station(str): 환승역
+        target_lines(list) : 해당 역에서 환승가능한 호선 리스트
+    Returns:
+        target_list[0](str) : 유일하게 환승가능한 라인 문자열
+        line(str) : 플레이어가 입력한 라인 문자열
+        
+    """
   target_list = sorted(target_lines)
   if len(target_list) == 1:
     return target_list[0]
@@ -99,19 +134,40 @@ def choose_transfer_line(who, station, target_lines):
     if line in target_lines:
       return line
     
-# 한바퀴 돌았는지 판단
+
 def next_turn(index, n, lap_count):
+  """플레이어 전체 한바퀴 돌았는지 판단하는 함수
+
+    Args:
+        index(int): 현재 차례인 플레이어의 인덱스
+        n(int): 전체 플레이어 수
+        lap_count(int): 현재까지 몇바퀴 돌았는지
+
+    Returns:
+        index: 기존 인덱스가 n을 초과한 경우 index-n
+        lap_count: 게임 전체동안 진행된 바퀴 수
+        
+    """
   index = (index+1)%n
   if index==0:
     lap_count+=1
   return index, lap_count
   
 
-def play(current_player, others):
+def play(current_player, others, user_name):
+  """메인 게임 함수
+
+    Args:
+        current_player(str): 미니게임 정한 플레이어 이름 문자열
+        others(list) : 그 외 플레이어 이름 문자열 리스트
+        user_name(str) : 실제 유저 이름 문자열
+    Returns:
+        json: 누가 술을 마시는지를 {"플레이어 이름" : 1} 처럼 리턴하는 json
+        
+    """
   players = [current_player] + list(others)
   n = len(players)
   used = set()
-  current_station = None
   index = 0   #지금 차례인 참가자 인덱스 : 기본은 플레이어
   lap_count = 0   #몇바퀴 돌았는지
   transfer_counter=0    #마지막 환승 이후 턴 수
@@ -119,14 +175,22 @@ def play(current_player, others):
   print('====================================================================')
   print(pyfiglet.figlet_format('SUBWAY GAME', font='doom'), end='')
   print('====================================================================')
+  time.sleep(2)
   print('🚇지하철~ 지하철! 지하철~ 지하철! 몇호선~ 몇호선! 몇호선~ 몇호선!🚇 : ', end='')
-  current_line = line_input()
+  if current_player == user_name:
+    current_line = line_input()
+  else:
+    time.sleep(2)
+    print(f'🚇 {current_player}(이)가 외친다... {current_line}!')
+    time.sleep(1)
+    current_line = random.choice(LINE_NAMES)
   print(f"{current_line}~ {current_line}! {current_line}~ {current_line}!")
+  time.sleep(1)
   
   while True:
     turn_player = players[index]
     # 플레이어 차례
-    if turn_player == current_player:
+    if turn_player == user_name:
       tokens = input(f"[{current_line}] {turn_player} 차례! 역 이름 "
                     f"(환승하려면 '역이름 환승'): ").strip().split()
       #입력 예외처리
@@ -149,7 +213,6 @@ def play(current_player, others):
         return {turn_player: 1}
     
       used.add(station)
-      current_station = station
     
       # 플레이어가 환승 외쳤을 때 : 환승역인지 확인
       if want_transfer:
@@ -157,7 +220,7 @@ def play(current_player, others):
           print(f"❌ '{station}'은(는) 환승역이 아닙니다! {turn_player} 탈락!")
           return {turn_player: 1}
         target_lines = lines_of(station) - {current_line}
-        current_line = choose_transfer_line(current_player, station, target_lines)
+        current_line = choose_transfer_line(station, target_lines)
         print(f"🔄 {current_line}으로 환승~ 🔄")
         transfer_counter = 0
         index, lap_count = next_turn(index, n, lap_count)
@@ -170,6 +233,7 @@ def play(current_player, others):
       # 실패확률 or 남은 역 없을 때 : NPC 탈락
       if random.random() < fail_rate or not candidates:
         print(f"❌ {turn_player}이(가) 역을 대지 못하고 탈락!")
+        time.sleep(1)
         return {turn_player: 1}
       
       # 마지막 환승으로부터 10번 지나면 자동 환승
@@ -178,11 +242,11 @@ def play(current_player, others):
         if transfer_stations:
           station = random.choice(transfer_stations)
           used.add(station)
-          current_station = station
           print(f"{turn_player} : {station}")
           target_lines = lines_of(station) - {current_line}
           current_line = random.choice(list(target_lines))
           print(f"🔄 {current_line}으로 환승~ 🔄")
+          time.sleep(1)
           transfer_counter = 0
           index, lap_count = next_turn(index, n, lap_count)
           continue
@@ -190,10 +254,10 @@ def play(current_player, others):
       # 일반 답변
       answer = random.choice(list(candidates))
       used.add(answer)
-      current_station = answer
       time.sleep(random.uniform(0.7, 1.5))
       print(f"{turn_player} : {answer}")
     
     # 한 턴 종료
     transfer_counter+=1
     index, lap_count = next_turn(index, n, lap_count)
+#play('정현민', ['a', 'b', 'c', 'd'])
