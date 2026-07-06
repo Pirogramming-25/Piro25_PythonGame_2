@@ -10,7 +10,11 @@ import pyfiglet
 
 def play (current_player, others, user_name):
 
-    all_players = [current_player] + others
+    pure_others = [p for p in others if p != user_name]
+    if current_player != user_name and current_player not in pure_others:
+        pure_others.append(current_player)
+    all_players = [user_name] + pure_others
+    
     ten_num = {}
     one_num = {}
     players_num = {}
