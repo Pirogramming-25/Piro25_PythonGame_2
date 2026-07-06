@@ -87,6 +87,10 @@ def play_two(current_player, other):
     
 
 def play(current_player, others):
+    if not isinstance(current_player, str):
+        current_player = current_player.name
+    others = [o if isinstance(o, str) else o.name for o in others]
+    
     pool = [current_player] + others
     
     if len(pool) < 2:
