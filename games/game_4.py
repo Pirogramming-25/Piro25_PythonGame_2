@@ -6,6 +6,7 @@
 # 6. 모든 플레이어의 수가 겹치지 않는다면 모두가 마시지 않고 종료
 
 import random
+import pyfiglet
 
 def play (current_player, others):
 
@@ -16,15 +17,29 @@ def play (current_player, others):
     drink_count = {}
     original_losers = []
 
+    result = pyfiglet.figlet_format('NUM_GAME')
+    print(result)
+
     # 플레이어별로 1~99 사이의 숫자를 랜덤으로 생성
-    print("=" * 50)
-    print("숫자를 무작위로 생성합니다")
-    print("=" * 50)
-    for player in all_players:
-        random_num = random.randint(1, 99)
-        players_num[player] = random_num
+    while True:
+        user_input = input(f"{current_player.name} 1부터 99 사이의 숫자를 입력해 주세요: ")
+        if user_input.isdigit():
+            num_val = int(user_input)
+            if 1 <= num_val <= 99:
+                players_num[current_player] = num_val
+                break
+        print(" 잘못된 입력입니다. 1~99 사이의 '정수 숫자'만 입력할 수 있습니다.")
         
-        print(f"{player}의 숫자: {random_num}")
+    # 나머지 컴퓨터 플레이어들은 무작위 랜덤 생성
+    for computer in others:
+        random_num = random.randint(1, 99)
+        players_num[computer] = random_num
+        print(f"{computer.name}의 숫자: {random_num}")
+
+    print("-" * 50)
+    print(f"최종 확인 -> {current_player.name}: {players_num[current_player]} / " + 
+        " / ".join([f"{c.name}: {players_num[c]}" for c in others]))
+    print("=" * 50)
 
     # 10의 자리와 1의 자리를 분리하여 딕셔너리에 저장       
     for player in all_players:
@@ -135,4 +150,3 @@ def play (current_player, others):
             result_dict[player] = count
                 
     return result_dict
-
