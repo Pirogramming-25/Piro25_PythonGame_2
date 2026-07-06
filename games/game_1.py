@@ -43,6 +43,18 @@ def double_pick(picker, pool):
 
 # 인원이 2명일 경우
 def play_two(current_player, other):
+    pool = [current_player, other]
+    
+    print()
+    result = pyfiglet.figlet_format('HONGSAM GAME')
+    print(result)
+    
+    print(LINE)
+    print()
+    slow_print(f'참가자는 >>> {", ".join(pool)} <<< 입니다 !')
+    print()
+    print(LINE)
+    
     slow_print(f'\n{current_player}(이)가 외친다 ! >>> 아싸 홍삼 ! <<<')
     slow_print(f'{other}(이)가 외친다 ! >>> 에브리바디 홍삼 ! <<<')
 
