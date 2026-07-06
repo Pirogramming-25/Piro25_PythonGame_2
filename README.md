@@ -121,8 +121,10 @@
 ## ▶️ 실행 방법
 
 반드시 프로젝트 최상위 폴더에서 실행하세요:
+프로젝트 폴더에서 아래 명령어를 순서대로 실행합니다.
 
 ```bash
+pip install -r requirements.txt
 python main.py
 ```
 
@@ -134,21 +136,27 @@ python main.py
 
 ```python
 # games/game_N.py
-def play(current_player, others):
-    # 이 안에서는 변수 이름 자유롭게 사용 가능 (모듈이 분리돼 있어 충돌 없음)
+def play(current_player, others, user_name):
+    # 이 안에서는 변수 이름 자유롭게 사용 가능
+    # 모듈이 분리되어 있어 다른 게임 파일과 변수명이 충돌하지 않음
+
     ...
+
     return {current_player: 1}
 ```
 
-**계약 3줄 요약**
+**계약 4줄 요약**
 
-1. 함수는 무조건 `def 함수이름(current_player, others):` — 이름 두 개, 순서 고정
-2. `current_player`는 문자열, `others`는 문자열 리스트
-3. 리턴은 무조건 `{이름: 잔수}` 딕셔너리, 아무도 안 마시면 빈 딕셔너리 `{}`
+1. 함수는 무조건 def play(current_player, others, user_name): 형태로 작성 — 이름과 순서 고정
+2. `current_player`는 이번 게임을 선택한 플레이어의 이름 문자열
+3. others는 나머지 플레이어의 이름 문자열 리스트, user_name은 실제로 키보드를 입력하는 사용자의 이름 문자열
+4. 리턴은 무조건 `{이름: 잔수}` 딕셔너리, 아무도 마시지 않으면 빈 딕셔너리 `{}`
 
-> 게임 종류가 자유롭고 여러 명이 마실 수 있어서 리턴을 딕셔너리로 통일
-> 혼자 하는 게임은 `others`를 무시하면 되고, 대결형은 `random.choice(others)`로 상대를 고르기 때문에
-> 파라미터를 다 안 써도 이상X
+> 게임 종류가 자유롭고 여러 명이 마실 수 있으므로 리턴값은 딕셔너리로 통일
+> `current_player`는 게임을 선택한 사람이고, `user_name`은 실제 키보드를 사용하는 사람
+> 따라서 실제 사용자 차례인지 확인할 때는 `current_player == user_name` 또는 게임 진행 중 현재 차례의 플레이어와 `user_name`을 비교
+> 혼자 하는 게임은 `others`를 사용하지 않아도 되고, 대결형 게임은 `random.choice(others)`로 상대를 선택할 수 있음
+> 사용하지 않는 파라미터가 있어도 문제 X
 
 ## 📁 폴더 구조
 
