@@ -42,7 +42,7 @@ def double_pick(picker, pool):
 
 
 # 인원이 2명일 경우
-def play_two(current_player, other):
+def play_two(current_player, other, user_name):
     pool = [current_player, other]
     
     print()
@@ -61,24 +61,34 @@ def play_two(current_player, other):
     target = other
 
     for round in range(20):
-        if target == current_player:
+        if target == current_player: # target이 게임을 진행하는 주체인지, 아닌지
+            opponent = other
+        else:
+            opponent = current_player
+            
+        if target == user_name:
             slow_print('>>> 당신이 지목당했습니다 ! 3초 안에 상대를 지목하세요 ! <<<')
             new_target = timed_input('-> ')
             print()
-
-            if new_target == other:
-                slow_print(f'{current_player}(이)가 외친다 ! >>> 아싸 너 ! <<< -> {other}')
-                target = other
+            
+            if new_target == opponent:
+                success = True
             else:
-                slow_print(f'{current_player}(이)는 반응하지 못했습니다 . . . 벌칙 !')
-                return {current_player: 1}
+                success = False
+                
         else:
             if random.random() < 0.25:
-                slow_print(f'{target}(이)는 반응하지 못했습니다 . . . 벌칙 !')
-                return {target: 1}
+                success = True
             else:
-                slow_print(f'{target}(이)가 외친다 ! >>> 아싸 너 ! <<< -> {current_player}')
-                target = current_player
+                success = False
+                
+                
+        if success:
+            slow_print(f'{target}(이)가 외친다 ! >>> 아싸 너 ! <<< -> {opponent}')
+            target = opponent
+        else:
+            slow_print(f'{target}(이)는 반응하지 못했습니다 . . . 벌칙 !')
+            return {target: 1}
 
     print(LINE)
     print('체인이 너무 길어져서 무승부로 처리합니다')
@@ -86,11 +96,17 @@ def play_two(current_player, other):
     return {}
     
 
-def play(current_player, others):
-    if not isinstance(current_player, str):
+def play(current_player, others, user_name = None): # user_name은 실제 사람이 조작 중인 플레이어
+    if not isinstance(current_player, str): # Player 객체로 들어올 경우를 대비하여 이름만 추출
         current_player = current_player.name
     others = [o if isinstance(o, str) else o.name for o in others]
-    
+    if user_name is not None and not isinstance(user_name, str):
+        user_name = user_name.name
+ 
+    if user_name is None:
+        user_name = current_player
+        
+            
     pool = [current_player] + others
     
     if len(pool) < 2:
@@ -98,7 +114,7 @@ def play(current_player, others):
         return {}
     
     if len(pool) == 2:
-        return play_two(current_player, others[0])
+        return play_two(current_player, others[0], user_name)
     
     print()
     result = pyfiglet.figlet_format('HONGSAM GAME')
@@ -119,19 +135,17 @@ def play(current_player, others):
 
     for round in range(20):
         count = {} # 지목 개수를 저장할 딕셔너리
+        
         for target in pending:
-            if target == current_player:
+            if target == user_name: # target이 진짜 사용자인지
                 slow_print('>>> 당신이 지목당했습니다 ! 3초 안에 다음 사람을 지목하세요 ! <<<')
                 new_target = timed_input('-> ')
                 print()
 
-                if new_target in pool and new_target != current_player:
-                    slow_print(f'{target}이 외친다 ! >>> 아싸 너 ! <<< -> {new_target}')
-                    print()
-                    count[new_target] = count.get(new_target, 0) + 1
+                if new_target in pool and new_target != target:
+                    valid = True
                 else:
-                    slow_print(f'{target}(이)는 반응하지 못했습니다 . . . 벌칙 !')
-                    return {current_player : 1}
+                    valid = False
 
             else:
                 options = [] # 지목 당한 사람을 제외한 사람들
@@ -140,16 +154,21 @@ def play(current_player, others):
                         options.append(p)
                 new_target = random.choice(options)
                 
-                # 25%의 확률로 다른 사람을 선택하지 못함
+                # 10%의 확률로 다른 사람을 선택하지 못함
                 if random.random() < 0.1:
-                    print()
-                    slow_print(f'{target}(이)는 반응하지 못했습니다 . . . 벌칙 !')
-                    return {target: 1}
+                    valid = False
                 else:
-                    slow_print(f'{target}(이)가 외친다 ! >>> 아싸 너 ! <<< -> {new_target}')
-                    print()
-                    count[new_target] = count.get(new_target, 0) + 1
+                    valid = True
             
+            if valid:
+                slow_print(f'{target}이 외친다 ! >>> 아싸 너 ! <<< -> {new_target}')
+                print()
+                count[new_target] = count.get(new_target, 0) + 1
+            else:
+                slow_print(f'{target}(이)는 반응하지 못했습니다 . . . 벌칙 !')
+                return {target: 1}
+            
+                                
         double_target = None
         
         for name, cnt in count.items():
@@ -161,25 +180,29 @@ def play(current_player, others):
         else:
             slow_print(f'{double_target}(이)가 동시에 지목당했다 !')
             
-            if double_target == current_player:
+            if double_target == user_name: 
                 slow_print('>>> 당신이 지목당했습니다 ! 3초 안에 >>> 아싸 홍삼 ! <<< 을 외치세요 ! <<<')
                 answer = timed_input('-> ')
                 
                 if answer == '아싸 홍삼 !':
-                    slow_print('다같이 외친다! >>> 에브리바디 홍삼 ! <<<')
-                    pending =  double_pick(double_target, pool)
+                    success = True
                 else:
-                    slow_print(f'{current_player}(이)는 반응하지 못했습니다 . . . 벌칙 !')
-                    return {current_player: 1}
+                    success = False
                 
             else:
                 if random.random() < 0.40:
-                    slow_print(f'{double_target}(이)는 반응하지 못햇습니다 . . . 벌칙 !')
-                    return {double_target: 1}
+                    success = False
                 else:
-                    slow_print(f'{double_target}(이)가 외친다 ! >>> 아싸 홍삼 ! <<<')
-                    slow_print('다같이 외친다! >>> 에브리바디 홍삼 ! <<<')
-                    pending = double_pick(double_target, pool)
+                    success = True
+                    
+            if success:
+                slow_print(f'{double_target}(이)가 외친다 ! >>> 아싸 홍삼 ! <<<')
+                slow_print('다같이 외친다! >>> 에브리바디 홍삼 ! <<<')
+                pending = double_pick(double_target, pool)
+            else:
+                slow_print(f'{double_target}(이)는 반응하지 못했습니다 . . . 벌칙 !')
+                return {double_target: 1}  # current_player -> double_target
+
     
     print(LINE)
     print('체인이 너무 길어져서 무승부로 처리합니다')
@@ -187,5 +210,5 @@ def play(current_player, others):
     return {}
                                
 if __name__== "__main__":
-    play('보민', ['현민', '지연', '주헌', '희원'])
+    play('보민', ['현민', '지연', '주헌', '희원'], user_name = '피로')
     
