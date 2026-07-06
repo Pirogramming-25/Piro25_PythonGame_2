@@ -80,43 +80,74 @@ def normalize_word(word):
     return ALIASES.get(cleaned_word, cleaned_word)
 
 
-def choose_target(caller_name, player_names):
+def choose_target(caller_name, player_names, user_name):
     """
-    caller_name: 지목자 이름 (str)
-    player_names: 전체 참가자 이름 리스트 (list[str])
-    반환값: 지목된 사람 이름 (str)
-    """
-    candidates = [name for name in player_names if name != caller_name]
+    caller_name: 현재 지목자 이름
+    player_names: 전체 참가자 이름 리스트
+    user_name: 실제 사용자 이름
 
-    if is_user(caller_name):
-        show_log(f"[지목] {caller_name}님이 다음 답변자를 선택합니다.", 0.2)
-        print(f"지목 가능한 참가자: {', '.join(candidates)}")
+    반환값: 지목된 사람 이름
+    """
+    candidates = [
+        name
+        for name in player_names
+        if name != caller_name
+    ]
+
+    # 실제 사용자가 지목자일 때만 직접 입력
+    if caller_name == user_name:
+        show_log(
+            f"[지목] {caller_name}님이 다음 답변자를 선택합니다.",
+            0.2,
+        )
+
+        print(
+            f"지목 가능한 참가자: {', '.join(candidates)}"
+        )
 
         while True:
-            target_name = input("다음 답변자 이름: ").strip()
+            target_name = input(
+                "다음 답변자 이름: "
+            ).strip()
 
             if target_name in candidates:
                 return target_name
 
-            print("지목 가능한 참가자의 이름을 정확히 입력하세요.")
+            print(
+                "지목 가능한 참가자의 이름을 정확히 입력하세요."
+            )
 
-    show_log(f"[지목] {caller_name}이(가) 다음 답변자를 고르는 중...")
+    # 컴퓨터가 지목자라면 자동 선택
+    show_log(
+        f"[지목] {caller_name}이(가) "
+        "다음 답변자를 고르는 중..."
+    )
+
     return random.choice(candidates)
 
 
-def choose_category(caller_name):
-    if is_user(caller_name):
-        show_log(f"[선택] {caller_name}님이 카테고리를 선택합니다.", 0.2)
+def choose_category(caller_name, user_name):
+    # 실제 사용자가 지목자일 때만 직접 입력
+    if caller_name == user_name:
+        show_log(
+            f"[선택] {caller_name}님이 카테고리를 선택합니다.",
+            0.2,
+        )
 
         while True:
-            category = input("카테고리 입력 (어/목/조/동): ").strip()
+            category = input(
+                "카테고리 입력 (어/목/조/동): "
+            ).strip()
 
             if category in CATEGORY_WORDS:
                 return category
 
             print("어, 목, 조, 동 중 하나만 입력하세요.")
 
-    return random.choice(list(CATEGORY_WORDS.keys()))
+    # 컴퓨터라면 자동 선택
+    return random.choice(
+        list(CATEGORY_WORDS.keys())
+    )
 
 
 def judge_answer(answer, category, used_words, elapsed_time, time_limit):
@@ -188,34 +219,45 @@ def get_computer_answer(category, used_words, time_limit):
     return answer, elapsed_time
 
 
-def play(current_player, others):
+def play(current_player, others, user_name):
     """
     어목조동 게임을 진행한다.
 
-    current_player: str (게임을 시작한 사람 이름)
-    others: list[str] (나머지 참가자 이름 목록)
+    current_player:
+        게임을 시작하는 플레이어 이름
+
+    others:
+        나머지 참가자 이름 리스트
+
+    user_name:
+        실제 키보드 입력을 담당하는 사용자 이름
 
     반환값:
-        한 명 이상이 마시면 {이름: 잔수}
-        아무도 마시지 않으면 {}
+        {이름: 잔수}
     """
-    # current_player와 others를 합쳐 전체 참가자 이름 리스트를 만든다.
-    # 실수로 current_player가 others에 중복 포함되어도 한 번만 남긴다.
     players = [current_player] + [
-        name for name in others if name != current_player
+        name
+        for name in others
+        if name != current_player
     ]
 
     if len(players) < 2:
         print("어목조동 게임은 최소 2명이 필요합니다.")
-        return {}  # main에서 인원수 검증이 보장되면 없어질 방어 코드
+        return {}
 
     used_words = set()
+
+    # 게임을 선택한 플레이어가 최초 지목자
     caller = current_player
+
     success_count = 0
     round_number = 1
-    time_limit = 7  # 테스트용
+    time_limit = 7
 
-    total_word_count = sum(len(words) for words in CATEGORY_WORDS.values())
+    total_word_count = sum(
+        len(words)
+        for words in CATEGORY_WORDS.values()
+    )
 
     print("\n" + "=" * 52)
     print("                    어목조동 게임")
@@ -223,48 +265,96 @@ def play(current_player, others):
     print("어: 물고기 / 목: 나무 / 조: 새 / 동: 그 밖의 동물")
     print("중복, 오답, 빈 답변, 시간 초과 시 패배합니다.")
     print("5번 성공할 때마다 제한 시간이 1초씩 줄어듭니다.")
-    print(f"제한시간: {time_limit}초 / 등록 단어: {total_word_count}개")
+    print(
+        f"제한시간: {time_limit}초 / "
+        f"등록 단어: {total_word_count}개"
+    )
     print("=" * 52)
+
     time.sleep(0.7)
 
     while True:
         print("\n" + "─" * 52)
-        show_log(f"[ROUND {round_number}] 현재 지목자: {caller}", 0.4)
 
-        target = choose_target(caller, players)
-        show_log(f"[지목 결과] {caller} → {target}")
-
-        category = choose_category(caller)
         show_log(
-            f"[카테고리] {category} - {CATEGORY_NAMES[category]}"
+            f"[ROUND {round_number}] "
+            f"현재 지목자: {caller}",
+            0.4,
+        )
+
+        target = choose_target(
+            caller,
+            players,
+            user_name,
+        )
+
+        show_log(
+            f"[지목 결과] {caller} → {target}"
+        )
+
+        category = choose_category(
+            caller,
+            user_name,
+        )
+
+        show_log(
+            f"[카테고리] "
+            f"{category} - {CATEGORY_NAMES[category]}"
         )
 
         show_log(
             f"[문제] {target}님, "
             f"{CATEGORY_NAMES[category]} 단어를 말하세요!"
         )
-        show_log(f"[제한시간] {time_limit}초", 0.35)
 
-        if is_user(target):
+        show_log(
+            f"[제한시간] {time_limit}초",
+            0.35,
+        )
+
+        # 실제 사용자가 지목됐을 때만 입력
+        if target == user_name:
             start_time = time.perf_counter()
-            answer = input(f"[답변 입력] {target}: ")
-            elapsed_time = time.perf_counter() - start_time
+
+            answer = input(
+                f"[답변 입력] {target}: "
+            )
+
+            elapsed_time = (
+                time.perf_counter() - start_time
+            )
+
+        # 컴퓨터가 지목됐으면 자동 답변
         else:
-            show_log(f"[생각 중] {target}이(가) 답을 생각합니다...")
+            show_log(
+                f"[생각 중] {target}이(가) "
+                "답을 생각합니다..."
+            )
+
             answer, elapsed_time = get_computer_answer(
                 category,
                 used_words,
                 time_limit,
             )
 
-            time.sleep(min(elapsed_time, 0.6))
+            time.sleep(
+                min(elapsed_time, 0.6)
+            )
 
             if answer:
-                show_log(f"[답변] {target}: {answer}")
+                show_log(
+                    f"[답변] {target}: {answer}"
+                )
             else:
-                show_log(f"[답변 실패] {target}: 생각이 안 나! 으악!!!")
+                show_log(
+                    f"[답변 실패] {target}: "
+                    "생각이 안 나! 으악!!!"
+                )
 
-        show_log("[판정 중] 답변을 확인합니다...", 0.45)
+        show_log(
+            "[판정 중] 답변을 확인합니다...",
+            0.45,
+        )
 
         is_correct, reason, normalized_answer = judge_answer(
             answer,
@@ -276,7 +366,11 @@ def play(current_player, others):
 
         if not is_correct:
             loser = target
-            show_log(f"[판정] 실패 - {reason}")
+
+            show_log(
+                f"[판정] 실패 - {reason}"
+            )
+
             break
 
         used_words.add(normalized_answer)
@@ -286,36 +380,50 @@ def play(current_player, others):
             f"[판정] 정답! "
             f"응답 시간 {elapsed_time:.1f}초"
         )
+
         show_log(
             f"[진행 상황] 성공 {success_count}회 / "
             f"사용 단어 {len(used_words)}개",
             0.35,
         )
 
+        # 정답을 맞힌 사람이 다음 지목자
         caller = target
         round_number += 1
 
         show_log(
-            f"[턴 이동] 다음 지목자는 {caller}입니다.",
+            f"[턴 이동] 다음 지목자는 "
+            f"{caller}입니다.",
             0.45,
         )
 
         if success_count % 5 == 0 and time_limit > 3:
             time_limit -= 1
+
             show_log(
                 f"[난이도 상승] 제한시간이 "
                 f"{time_limit}초로 줄었습니다.",
                 0.8,
             )
 
-    drink_count = 2 if reason == "시간 초과" else 1
-    result = {loser: drink_count}
+    drink_count = (
+        2 if reason == "시간 초과" else 1
+    )
+
+    result = {
+        loser: drink_count
+    }
 
     print("\n" + "=" * 52)
+
     show_log("[게임 종료]", 0.3)
     show_log(f"[패배자] {loser}", 0.3)
     show_log(f"[실패 이유] {reason}", 0.3)
-    show_log(f"[벌칙] {loser} {drink_count}잔", 0.3)
+    show_log(
+        f"[벌칙] {loser} {drink_count}잔",
+        0.3,
+    )
+
     print("=" * 52)
 
     return result
